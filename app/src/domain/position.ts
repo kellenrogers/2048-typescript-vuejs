@@ -9,6 +9,8 @@ export class Position {
     this._y = props.y
   }
 
+  // public properties
+
   public get x(): number {
     return this._x
   }

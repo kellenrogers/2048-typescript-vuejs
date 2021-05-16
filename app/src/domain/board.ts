@@ -17,16 +17,7 @@ export class Board {
     this.startNewGame()
   }
 
-  // public functions
-
-  public startNewGame(): void {
-    this._tiles = []
-    this._score = 0
-    this._isGameOver = false
-
-    this.addRandomTile()
-    this.addRandomTile()
-  }
+  // public properties
 
   public get tiles(): Tile[] {
     return this._tiles
@@ -42,6 +33,17 @@ export class Board {
 
   public get score(): number {
     return this._score
+  }
+
+  // public functions
+
+  public startNewGame(): void {
+    this._tiles = []
+    this._score = 0
+    this._isGameOver = false
+
+    this.addRandomTile()
+    this.addRandomTile()
   }
 
   public applyMove(move: Move, testOnly = false): void {

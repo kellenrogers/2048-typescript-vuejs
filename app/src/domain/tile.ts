@@ -18,30 +18,7 @@ export class Tile {
     this._isDirty = false
   }
 
-  public combine(previousTile: Tile): void {
-    this._value += previousTile.value
-    this._position = previousTile.position
-    this._combined = true
-    this._isDirty = true
-    previousTile.destroy()
-  }
-
-  public destroy(): void {
-    console.log(`Destroying Tile: ${this._id}`)
-    this._destoryed = true
-    this._value = 0
-    this._isDirty = true
-  }
-
-  public deepCopy(): Tile {
-    const copy = new Tile(this._position, this._value)
-
-    copy['_destoryed'] = this._destoryed
-    copy['_combined'] = this._combined
-    copy['_isDirty'] = this._isDirty
-
-    return copy
-  }
+  // public properties
 
   public get destroyed(): boolean {
     return this._destoryed
@@ -72,5 +49,32 @@ export class Tile {
 
     this._position = value
     this._isDirty = true
+  }
+
+  // public functions
+
+  public combine(previousTile: Tile): void {
+    this._value += previousTile.value
+    this._position = previousTile.position
+    this._combined = true
+    this._isDirty = true
+    previousTile.destroy()
+  }
+
+  public destroy(): void {
+    console.log(`Destroying Tile: ${this._id}`)
+    this._destoryed = true
+    this._value = 0
+    this._isDirty = true
+  }
+
+  public deepCopy(): Tile {
+    const copy = new Tile(this._position, this._value)
+
+    copy['_destoryed'] = this._destoryed
+    copy['_combined'] = this._combined
+    copy['_isDirty'] = this._isDirty
+
+    return copy
   }
 }
