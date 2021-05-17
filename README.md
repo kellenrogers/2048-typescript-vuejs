@@ -1,4 +1,4 @@
-# 2048-typescript-vuej
+# 2048-typescript-vuejs
 Typescript / VueJS implementation of 2048 game using HTML5 and CSS animations.
 
 Explores VueJS 3 and CSS for building simple animations. 
