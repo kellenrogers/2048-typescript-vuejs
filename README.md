@@ -1,7 +1,7 @@
-# 2048-typescript-vuejs-canvas
-Typescript / VueJS implementation of 2048 game using HTML5 canvas
+# 2048-typescript-vuej
+Typescript / VueJS implementation of 2048 game using HTML5 and CSS animations.
 
-Explores HTML5 canvas element for use in building simple animations. 
+Explores VueJS 3 and CSS for building simple animations. 
 
 ### Run Dev
 ```
