@@ -74,24 +74,25 @@ describe('Unit Tests', () => {
       })
     })
     describe('isGameWon', () => {
-      it('should return false if score is less than 2048', () => {
-        const board = new Board()
-
-        assert.isBelow(board.score, 2048)
-        assert.isFalse(board.isGameWon)
-      })
-      it('should return true if score is 2048', () => {
-        const board = new Board()
-        board['_score'] = 2048
-
-        assert.isAtLeast(board.score, 2048)
-        assert.isTrue(board.isGameWon)
-      })
-      it('should return true if score is greater than 2048', () => {
+      it('should return false if max tile value is less than 2048', () => {
         const board = new Board()
         board['_score'] = 4096
 
         assert.isAbove(board.score, 2048)
+        assert.isFalse(board.isGameWon)
+      })
+      it('should return true if max tile value is 2048', () => {
+        const board = new Board()
+        board['_score'] = 500
+        board['_tiles'] = [new Tile(new Position({ x: 0, y: 0 }), 2048)]
+
+        assert.isTrue(board.isGameWon)
+      })
+      it('should return true if max tile value is greater than 2048', () => {
+        const board = new Board()
+        board['_score'] = 500
+        board['_tiles'] = [new Tile(new Position({ x: 0, y: 0 }), 4096)]
+
         assert.isTrue(board.isGameWon)
       })
     })
@@ -182,7 +183,6 @@ describe('Unit Tests', () => {
 
         board.applyMove(Moves.RIGHT)
 
-        assert.equal(board.tiles.length, 3)
         assert.isTrue(tile2.destroyed)
         assert.isTrue(tile1.combined)
         assert.equal(tile1.position.x, 0)
@@ -200,7 +200,6 @@ describe('Unit Tests', () => {
 
         board.applyMove(Moves.RIGHT)
 
-        assert.equal(board.tiles.length, 2)
         assert.isTrue(tile2.destroyed)
         assert.isTrue(tile1.combined)
         assert.equal(tile1.position.x, 0)
@@ -216,7 +215,6 @@ describe('Unit Tests', () => {
 
         board.applyMove(Moves.RIGHT)
 
-        assert.equal(board.tiles.length, 3)
         assert.isTrue(tile3.destroyed)
         assert.isTrue(tile2.combined)
         assert.equal(tile1.position.x, 0)
@@ -236,7 +234,6 @@ describe('Unit Tests', () => {
 
         board.applyMove(Moves.RIGHT)
 
-        assert.equal(board.tiles.length, 3)
         assert.isTrue(tile3.destroyed)
         assert.isTrue(tile1.destroyed)
         assert.isTrue(tile2.combined)
@@ -246,6 +243,31 @@ describe('Unit Tests', () => {
         assert.equal(tile2.position.x, 0)
         assert.equal(tile2.position.y, 3)
         assert.equal(tile2.value, 4)
+      })
+      it('should not combine tiles twice', () => {
+        const tile0 = new Tile(new Position({ x: 0, y: 0 }), 2)
+        const tile1 = new Tile(new Position({ x: 0, y: 1 }), 8)
+        const tile2 = new Tile(new Position({ x: 0, y: 2 }), 4)
+        const tile3 = new Tile(new Position({ x: 0, y: 3 }), 4)
+        const board = new Board()
+        board['_tiles'] = [tile0, tile1, tile2, tile3]
+
+        board.applyMove(Moves.RIGHT)
+
+        assert.isTrue(tile3.destroyed)
+        assert.isFalse(tile2.destroyed)
+        assert.isTrue(tile2.combined)
+        assert.isFalse(tile1.combined)
+        assert.isFalse(tile3.combined)
+        assert.equal(tile0.position.x, 0)
+        assert.equal(tile0.position.y, 1)
+        assert.equal(tile0.value, 2)
+        assert.equal(tile1.position.x, 0)
+        assert.equal(tile1.position.y, 2)
+        assert.equal(tile1.value, 8)
+        assert.equal(tile2.position.x, 0)
+        assert.equal(tile2.position.y, 3)
+        assert.equal(tile2.value, 8)
       })
       it('should not have any dirty flags if no movement was made', () => {
         const tile1 = new Tile(new Position({ x: 0, y: 0 }), 2)

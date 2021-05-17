@@ -12,9 +12,37 @@ export class Board {
   private _size: number = BOARD_SIZE
   private _score = 0
   private _isGameOver = false
+  private _justAddedTile: Tile | undefined
 
   public constructor() {
     this.startNewGame()
+  }
+
+  // public properties
+  public get tiles(): Tile[] {
+    return this._tiles
+  }
+
+  public get isGameOver(): boolean {
+    return this._isGameOver
+  }
+
+  public get isGameWon(): boolean {
+    const maxTileScore = this.tiles.reduce(
+      (max: number, tile: Tile) => (tile.value > max ? tile.value : max),
+      0
+    )
+    return maxTileScore >= WINNING_SCORE
+  }
+
+  public get justAddedTileID(): string {
+    if (!this._justAddedTile) return ''
+
+    return this._justAddedTile.id
+  }
+
+  public get score(): number {
+    return this._score
   }
 
   // public functions
@@ -26,40 +54,24 @@ export class Board {
 
     this.addRandomTile()
     this.addRandomTile()
-  }
-
-  public get tiles(): Tile[] {
-    return this._tiles
-  }
-
-  public get isGameOver(): boolean {
-    return this._isGameOver
-  }
-
-  public get isGameWon(): boolean {
-    return this._score >= WINNING_SCORE
-  }
-
-  public get score(): number {
-    return this._score
+    this._justAddedTile = undefined
   }
 
   public applyMove(move: Move, testOnly = false): void {
     if (this.isGameOver) return
 
     this.printBoard('Before Apply Move')
-    this.clearIsDirtyTileFlags()
+    this._justAddedTile = undefined
+    this.removeDestroyedTiles()
+    this.clearFlagsOnTiles()
     const tileGroups = this.getTileGroupsForMove(move)
 
-    this._tiles = tileGroups.reduce((allTiles: Tile[], group: Tile[]) => {
+    tileGroups.forEach((group: Tile[]) => {
       const combinedTiles = this.combineAlikeTiles(group, move.shiftDirection)
-      const shiftedTiles = this.shift(combinedTiles, move.shiftDirection, move.groupsBy)
-      allTiles.push(...shiftedTiles)
-      return allTiles
-    }, [])
+      this.shift(combinedTiles, move.shiftDirection, move.groupsBy)
+    })
 
     if (this.atleastOneTileMoved()) {
-      console.log('Board Moved, Adding New Tile')
       this.addRandomTile()
     }
 
@@ -105,8 +117,14 @@ export class Board {
     return copy
   }
 
-  private clearIsDirtyTileFlags(): void {
-    this.tiles.forEach((tile) => (tile.isDirty = false))
+  private removeDestroyedTiles(): void {
+    this._tiles = this._tiles.filter((tile) => !tile.destroyed)
+  }
+
+  private clearFlagsOnTiles(): void {
+    this.tiles.forEach((tile) => {
+      tile.clearStateFlags()
+    })
   }
 
   private atleastOneTileMoved(): boolean {
@@ -118,11 +136,11 @@ export class Board {
     const value = Math.random() < 0.9 ? 2 : 4
 
     if (!position) {
-      console.log('Failed To Find Empty Position For New Tile')
       return
     }
 
-    this._tiles.push(new Tile(position, value))
+    this._justAddedTile = new Tile(position, value)
+    this._tiles.push(this._justAddedTile)
   }
 
   private getRandomEmptyPosition(): Position | undefined {
@@ -148,7 +166,11 @@ export class Board {
       const previousTile = orderedGroup[index - 1]
       const currentTile = orderedGroup[index]
 
-      if (previousTile.value === currentTile.value) {
+      if (
+        previousTile.value === currentTile.value &&
+        !previousTile.combined &&
+        !currentTile.combined
+      ) {
         currentTile.combine(previousTile)
         this._score += currentTile.value
       }
